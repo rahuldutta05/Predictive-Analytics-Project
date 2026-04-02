@@ -1,0 +1,118 @@
+/* Wheat-field background + shared page styling (inspired by `src alt`). */
+
+.app-shell {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.app-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  /* Uses the provided asset from `frontend/` root. */
+  background-image: url("../../wheat_fieldjpg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  transform: scale(1.02);
+  z-index: -2;
+}
+
+/* Darkening overlay so text/cards remain readable even if image is bright. */
+.app-shell::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1200px 600px at 15% 5%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(10, 60, 20, 0.55), rgba(10, 60, 20, 0.65));
+  z-index: -1;
+}
+
+/* Dark mode: keep cards readable with a stronger overlay. */
+.app-shell[data-theme="dark"]::after {
+  background:
+    radial-gradient(1200px 600px at 15% 5%, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0) 60%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.65));
+}
+
+.app-content {
+  position: relative;
+  z-index: 1;
+}
+
+.page-hero {
+  padding: 2.2rem 1.25rem 1.15rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.page-hero-inner {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: var(--shadow-sm);
+  border-radius: 22px;
+  padding: 1.4rem 1.35rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.page-hero-title {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+
+.page-hero-sub {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.page-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.25rem 5rem;
+}
+
+.app-pad-bottom {
+  padding-bottom: 90px;
+}
+
+.content-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 22px;
+  padding: 1.4rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-shell[data-theme="dark"] .content-card {
+  background: rgba(15, 25, 15, 0.78);
+  border-color: rgba(122, 184, 138, 0.20);
+  color: var(--text-primary);
+}
+
+.page-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.page-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 900px) {
+  .page-grid-2 { grid-template-columns: 1fr; }
+  .page-grid-3 { grid-template-columns: 1fr; }
+}
+

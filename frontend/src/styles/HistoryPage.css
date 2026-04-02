@@ -1,0 +1,96 @@
+.hist-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.hist-title {
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.hist-sub {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.hist-clear {
+  height: 38px;
+  border-radius: 14px;
+  padding: 0 1rem;
+  background: rgba(212, 74, 42, 0.10);
+  border: 1px solid rgba(212, 74, 42, 0.25);
+  color: #b32b1b;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.app-shell[data-theme="dark"] .hist-clear {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(212, 74, 42, 0.18);
+}
+
+.hist-empty {
+  padding: 2rem 1rem;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 0.6rem;
+}
+
+.hist-empty-icon {
+  font-size: 2rem;
+}
+
+.hist-empty-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.hist-empty-sub {
+  color: var(--text-muted);
+  max-width: 460px;
+  line-height: 1.35;
+}
+
+.hist-table-wrap {
+  overflow: auto;
+}
+
+.hist-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.hist-table th {
+  text-align: left;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 900;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 0.95rem 0.9rem;
+}
+
+.hist-table td {
+  padding: 0.9rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary);
+}
+
+.hist-td {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.hist-table tr:hover td {
+  background: rgba(74, 124, 89, 0.06);
+}
+

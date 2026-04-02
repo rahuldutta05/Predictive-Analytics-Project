@@ -1,0 +1,54 @@
+.dashboard-main {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── Section labels ──────────────────────────── */
+.chart-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0 0.25rem;
+  margin-bottom: -0.5rem;
+}
+
+/* ── Chart grid rows ─────────────────────────── */
+.chart-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+}
+
+.chart-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.75rem;
+}
+
+/* The first column in row-3 could be slightly wider for the donut */
+.chart-row-3-wide {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 1.75rem;
+}
+
+@media (max-width: 1024px) {
+  .chart-row-3,
+  .chart-row-3-wide { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  .chart-row-2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .chart-row-3,
+  .chart-row-3-wide  { grid-template-columns: 1fr; }
+  .dashboard-main    { padding: 1rem 0.75rem 3rem; gap: 1.25rem; }
+}

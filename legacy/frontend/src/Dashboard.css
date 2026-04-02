@@ -1,0 +1,31 @@
+.dashboard-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* ── Chart grid rows ─────────────────────────────── */
+.chart-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.chart-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 900px) {
+  .chart-row-2 { grid-template-columns: 1fr; }
+  .chart-row-3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .chart-row-3  { grid-template-columns: 1fr; }
+  .dashboard-main { padding: 1rem 1rem 3rem; }
+}

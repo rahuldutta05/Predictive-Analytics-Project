@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+/* ─────────────────────────────────────────
+   CSS VARIABLES — Light & Dark
+───────────────────────────────────────── */
+:root {
+  --bg:            #f5f5f0;
+  --bg-card:       #ffffff;
+  --bg-input:      #fafaf8;
+  --bg-header:     #1a2e1a;
+  --border:        #e2e2da;
+  --border-focus:  #4a7c59;
+
+  --text-primary:   #1a1a14;
+  --text-secondary: #5a5a52;
+  --text-muted:     #8a8a80;
+  --text-inverse:   #f5f5f0;
+
+  --green-dark:    #1a2e1a;
+  --green-mid:     #2d5016;
+  --green-base:    #4a7c59;
+  --green-light:   #7ab88a;
+  --green-pale:    #d4ead9;
+
+  --amber:         #c8860a;
+  --amber-pale:    #fef3dc;
+  --red-soft:      #d44a2a;
+  --blue-soft:     #3a6ea8;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,0.12);
+
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+
+  --transition: 0.22s ease;
+}
+
+[data-theme="dark"] {
+  --bg:            #111a10;
+  --bg-card:       #1c2b1a;
+  --bg-input:      #243022;
+  --bg-header:     #0d150d;
+  --border:        #2e4030;
+  --border-focus:  #7ab88a;
+
+  --text-primary:   #e8ede6;
+  --text-secondary: #a0b09e;
+  --text-muted:     #607060;
+  --text-inverse:   #1a2e1a;
+
+  --green-pale:    #1e3420;
+  --amber-pale:    #2a1e08;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.35);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* ─────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text-primary);
+  transition: background-color var(--transition), color var(--transition);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 { line-height: 1.2; }
+
+button { font-family: var(--font-body); cursor: pointer; border: none; }
+
+input, select { font-family: var(--font-body); }
+
+/* ─────────────────────────────────────────
+   SCROLLBAR
+───────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--green-base); }

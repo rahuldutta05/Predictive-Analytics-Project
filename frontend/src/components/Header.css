@@ -1,0 +1,163 @@
+.site-header {
+  background-color: var(--bg-header);
+  color: var(--text-inverse);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+}
+
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-icon {
+  color: var(--green-light);
+  display: flex;
+  align-items: center;
+}
+
+.header-wordmark {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: #e8ede6;
+  display: block;
+  letter-spacing: -0.01em;
+}
+
+.header-wordmark em {
+  font-style: italic;
+  color: var(--green-light);
+}
+
+.header-tagline {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.4);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+  line-height: 1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lang-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.lang-trigger {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: var(--text-inverse);
+  border-radius: 999px;
+  height: 36px;
+  padding: 0 0.9rem;
+  cursor: pointer;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.lang-trigger:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.lang-dropdown {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  min-width: 190px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.16);
+  padding: 0.35rem;
+  z-index: 999;
+}
+
+.lang-option {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  height: 36px;
+  padding: 0 0.85rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.lang-option:hover {
+  background: rgba(74, 124, 89, 0.10);
+}
+
+.lang-option.active {
+  background: rgba(74, 124, 89, 0.18);
+  color: var(--green-dark);
+}
+
+.app-shell[data-theme="dark"] .lang-dropdown {
+  background: rgba(13, 18, 9, 0.92);
+  border-color: rgba(255,255,255,0.10);
+}
+
+.app-shell[data-theme="dark"] .lang-option {
+  color: var(--text-primary);
+}
+
+.app-shell[data-theme="dark"] .lang-option.active {
+  background: rgba(122, 184, 138, 0.20);
+  color: var(--green-light);
+}
+
+.header-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  background: rgba(122,184,138,0.15);
+  color: var(--green-light);
+  border: 1px solid rgba(122,184,138,0.25);
+}
+
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background var(--transition);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.theme-toggle:hover {
+  background: rgba(255,255,255,0.15);
+}

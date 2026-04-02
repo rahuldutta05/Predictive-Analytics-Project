@@ -1,0 +1,73 @@
+/* Bottom nav inspired by `src alt` (carbon app). */
+
+.c-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-around;
+  padding: 0.45rem 0.5rem calc(0.45rem + env(safe-area-inset-bottom));
+  z-index: 300;
+}
+
+.app-shell[data-theme="dark"] .c-bottom-nav {
+  background: rgba(13, 18, 9, 0.85);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.c-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: rgba(20, 20, 20, 0.55);
+  cursor: pointer;
+  padding: 0.25rem 0;
+  transition: color 0.2s ease;
+}
+
+.app-shell[data-theme="dark"] .c-nav-item {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.c-nav-item.active {
+  color: var(--green-base);
+}
+
+.app-shell[data-theme="dark"] .c-nav-item.active {
+  color: var(--green-light);
+}
+
+.c-nav-item.active::after {
+  content: "";
+  display: block;
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--green-base);
+  margin-top: 2px;
+}
+
+.c-nav-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.c-nav-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+/* Farmer special accent (middle tab) */
+.c-nav-item.farmer-tab {
+  color: rgba(74, 124, 89, 0.75);
+}
+

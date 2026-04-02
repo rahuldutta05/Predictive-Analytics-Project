@@ -1,0 +1,112 @@
+.ft-layout {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 2rem;
+}
+
+.ft-col {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .ft-layout { grid-template-columns: 1fr; }
+}
+
+.ft-card-header {
+  margin-bottom: 1rem;
+}
+
+.ft-card-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #1a1a14;
+}
+
+/* Accordions */
+.ft-acc-item {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ft-acc-item:first-child {
+  border-top: none;
+}
+
+.ft-acc-summary {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.95rem 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+
+.app-shell[data-theme="dark"] .ft-acc-summary {
+  color: var(--text-primary);
+}
+
+.ft-acc-chevron {
+  color: var(--green-base);
+  font-weight: 900;
+}
+
+.ft-acc-body {
+  padding: 0 0 1rem;
+}
+
+.ft-bullets {
+  margin-left: 1.15rem;
+  display: grid;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.ft-scheme-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.ft-scheme {
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(74, 124, 89, 0.06);
+}
+
+.ft-scheme-title {
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  font-size: 1.05rem;
+  margin-bottom: 0.4rem;
+}
+
+.ft-scheme-desc {
+  color: var(--text-secondary);
+  line-height: 1.35;
+  font-size: 0.95rem;
+}
+
+.ft-note {
+  margin-top: 1.1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.ft-card-sub {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.35rem;
+  line-height: 1.35;
+}
+
+.ft-card-header h2 {
+  margin: 0;
+}
+
