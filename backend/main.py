@@ -11,7 +11,50 @@ import json
 import base64
 from PIL import Image
 import io
+import sys
+from sklearn.base import BaseEstimator, TransformerMixin
 
+class CropPreprocessor(BaseEstimator, TransformerMixin):
+    def __init__(self, outlier_quantile=0.01, corr_threshold=0.85):
+        self.outlier_quantile = outlier_quantile
+        self.corr_threshold   = corr_threshold
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        df = X.copy()
+        for col in ['N', 'P', 'K', 'rainfall']:
+            df[col] = df[col].clip(lower=0)
+        df['humidity'] = df['humidity'].clip(0, 100)
+        df['ph']       = df['ph'].clip(0, 14)
+
+        df = df.fillna(self.medians_)
+        df = self._apply_caps(df)
+        df[['N', 'P', 'K', 'rainfall']] = self.pt_.transform(
+            df[['N', 'P', 'K', 'rainfall']]
+        )
+        df = self._engineer_features(df)
+        df = df.drop(columns=[c for c in self.to_drop_ if c in df.columns])
+        return df
+
+    def _apply_caps(self, df):
+        for col, (lo, hi) in self.caps_.items():
+            df[col] = df[col].clip(lo, hi)
+        return df
+
+    def _engineer_features(self, df):
+        df = df.copy()
+        df['NPK_sum']      = df['N'] + df['P'] + df['K']
+        df['N_to_P']       = df['N'] / (df['P'] + 1e-5)
+        if 'Soil_OC' in df.columns:
+            df['soil_score']   = df['Soil_OC'] * df['NPK_sum']
+        else:
+            df['soil_score']   = 1.0 * df['NPK_sum'] # fallback if completely missing
+        df['climate_score']= df['temperature'] * df['humidity']
+        return df
+
+setattr(sys.modules['__main__'], 'CropPreprocessor', CropPreprocessor)
 # ========== APP SETUP ==========
 app = FastAPI(title="AgriSense API v2.0", version="2.0.0")
 
@@ -26,17 +69,43 @@ app.add_middleware(
 # ========== MODEL LOADING ==========
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(BASE_DIR, "ml model", "models")
-CROP_MODEL_PATH = os.path.join(MODEL_DIR, "crop_recommendation_topk_model.pkl")
-YIELD_MODEL_PATH = os.path.join(MODEL_DIR, "yield_predictor.pkl")
+CROP_MODEL_PATH = os.path.join(MODEL_DIR, "best_model.pkl")
+YIELD_MODEL_PATH = os.path.join(MODEL_DIR, "crop_yield_model.pkl")
+
+import warnings
+try:
+    from sklearn.exceptions import InconsistentVersionWarning
+    warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+except ImportError:
+    pass
 
 try:
-    crop_pipeline = joblib.load(CROP_MODEL_PATH)
-    yield_pipeline = joblib.load(YIELD_MODEL_PATH)
+    crop_data = joblib.load(CROP_MODEL_PATH)
+    if isinstance(crop_data, dict):
+        crop_model = crop_data.get("model")
+        crop_le = crop_data.get("label_encoder")
+        crop_preprocessor = crop_data.get("preprocessor")
+        crop_features = None
+    else:
+        crop_model, crop_le, crop_features = crop_data
+        crop_preprocessor = None
+
+    yield_data = joblib.load(YIELD_MODEL_PATH)
+    yield_model = yield_data["model"]
+    yield_scaler = yield_data["scaler"]
+    yield_encoder = yield_data["encoder"]
+    yield_features = yield_data["columns"]
     print("✅ Models loaded successfully.")
 except Exception as e:
     print(f"❌ Error loading models: {e}")
-    crop_pipeline = None
-    yield_pipeline = None
+    crop_model = None
+    crop_le = None
+    crop_features = None
+    crop_preprocessor = None
+    yield_model = None
+    yield_scaler = None
+    yield_encoder = None
+    yield_features = None
 
 # ========== FEATURE DEFINITIONS ==========
 CROP_FEATURE_COLS = ["N", "P", "K", "temperature", "humidity", "ph", "rainfall"]
@@ -59,6 +128,7 @@ class PredictYieldPayload(BaseModel):
     Fertilizer_kg_ha: float
     Pest_Index: float
     Irrigation_mm: float
+    label: Optional[str] = None
 
 class RecommendCropPayload(BaseModel):
     N: float
@@ -141,33 +211,66 @@ water_usage_records = {}
 @app.post("/predict_yield")
 async def predict_yield_endpoint(payload: PredictYieldPayload):
     """Predict crop yield based on soil and environmental parameters"""
-    if yield_pipeline is None:
+    if yield_model is None:
         raise HTTPException(status_code=500, detail="Yield model not loaded")
     
     try:
         data = payload.dict()
-        row = pd.DataFrame([data])
         
-        # Add engineered features
-        row["Nutrient_Balance_Index"] = (row["N"] + row["P"] + row["K"]) / 3
-        row["Stress_Index"] = row["temperature"] * (1 - row["humidity"] / 100)
-        row["Rainfall_N_Interaction"] = row["rainfall"] * row["N"]
-        row["Temp_Humidity_Interaction"] = row["temperature"] * row["humidity"]
-        row["Fertilizer_Rainfall_Interaction"] = row["Fertilizer_kg_ha"] * row["rainfall"]
+        # If no label provided, use the crop_model to predict it first
+        if not data.get("label"):
+            if crop_model is not None:
+                if crop_preprocessor is not None:
+                    # Isolate only the features needed for crop prediction
+                    crop_keys = ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall', 'Soil_OC']
+                    crop_input = {k: data[k] for k in crop_keys if k in data}
+                    if 'Soil_OC' not in crop_input:
+                        crop_input['Soil_OC'] = np.nan
+                    crop_row = pd.DataFrame([crop_input])
+                    crop_row_transformed = crop_preprocessor.transform(crop_row)
+                    pred_encoded = crop_model.predict(crop_row_transformed)[0]
+                    data['label'] = crop_le.inverse_transform([pred_encoded])[0]
+                else:
+                    crop_row = pd.DataFrame([data])
+                    crop_row['NPK_sum'] = crop_row['N'] + crop_row['P'] + crop_row['K']
+                    crop_row['N_to_P'] = crop_row['N'] / (crop_row['P'] + 1e-5)
+                    crop_row['climate_score'] = crop_row['temperature'] * crop_row['humidity']
+                    for col in crop_features:
+                        if col not in crop_row.columns:
+                            crop_row[col] = 0
+                    pred_encoded = crop_model.predict(crop_row[crop_features])[0]
+                    data['label'] = crop_le.inverse_transform([pred_encoded])[0]
+            else:
+                raise HTTPException(status_code=500, detail="Cannot infer crop name without crop model")
+                
+        df = pd.DataFrame([data])
         
-        FEATURE_COLS = [
-            "N", "P", "K", "temperature", "humidity", "ph", "rainfall",
-            "Soil_OC", "Fertilizer_kg_ha", "Pest_Index", "Irrigation_mm",
-            "Nutrient_Balance_Index", "Stress_Index",
-            "Rainfall_N_Interaction", "Temp_Humidity_Interaction",
-            "Fertilizer_Rainfall_Interaction",
-        ]
+        # --- ONE HOT ENCODING ---
+        encoded = yield_encoder.transform(df[['label']])
+        encoded_df = pd.DataFrame(
+            encoded,
+            columns=yield_encoder.get_feature_names_out(['label'])
+        )
         
-        prediction = yield_pipeline.predict(row[FEATURE_COLS])[0]
+        # Drop original label
+        df = df.drop('label', axis=1)
+        
+        # Combine numeric + encoded
+        df = pd.concat([df.reset_index(drop=True), encoded_df.reset_index(drop=True)], axis=1)
+        
+        # --- MATCH TRAINING COLUMNS ---
+        df = df.reindex(columns=yield_features, fill_value=0)
+        
+        # --- SCALING ---
+        df_scaled = yield_scaler.transform(df)
+        
+        # --- PREDICTION ---
+        prediction = yield_model.predict(df_scaled)[0]
         
         return {
             "predicted_yield_t_ha": round(float(prediction), 4),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "crop_used": data.get("label")
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -175,21 +278,44 @@ async def predict_yield_endpoint(payload: PredictYieldPayload):
 @app.post("/recommend_crop")
 async def recommend_crop_endpoint(payload: RecommendCropPayload, k: int = 3):
     """Recommend top 3 crops based on soil and environmental parameters"""
-    if crop_pipeline is None:
+    if crop_model is None:
         raise HTTPException(status_code=500, detail="Crop model not loaded")
     
     try:
         data = payload.dict()
-        row = pd.DataFrame([data])[CROP_FEATURE_COLS]
+        df = pd.DataFrame([data])
         
-        probs = crop_pipeline.predict_proba(row)[0]
-        classes = crop_pipeline.classes_
-        top_idx = probs.argsort()[::-1][:k]
-        
-        top_crops = [
-            {"crop": classes[i], "probability": round(float(probs[i]) * 100, 2)}
-            for i in top_idx
-        ]
+        if crop_preprocessor is not None:
+            if 'Soil_OC' not in df.columns:
+                df['Soil_OC'] = np.nan
+            row = crop_preprocessor.transform(df)
+            probs = crop_model.predict_proba(row)[0]
+            top_idx = probs.argsort()[::-1][:k]
+            top_crops = [
+                {"crop": crop_le.inverse_transform([idx])[0], "probability": round(float(probs[idx]) * 100, 2)}
+                for idx in top_idx
+            ]
+        else:
+            # Feature engineering (same as training)
+            df['NPK_sum'] = df['N'] + df['P'] + df['K']
+            df['N_to_P'] = df['N'] / (df['P'] + 1e-5)
+            df['climate_score'] = df['temperature'] * df['humidity']
+            
+            # Align columns
+            for col in crop_features:
+                if col not in df.columns:
+                    df[col] = 0
+                    
+            row = df[crop_features]
+            
+            probs = crop_model.predict_proba(row)[0]
+            classes_encoded = crop_model.classes_
+            top_idx = probs.argsort()[::-1][:k]
+            
+            top_crops = [
+                {"crop": crop_le.inverse_transform([classes_encoded[idx]])[0], "probability": round(float(probs[idx]) * 100, 2)}
+                for idx in top_idx
+            ]
         
         return {
             "top_crops": top_crops,
